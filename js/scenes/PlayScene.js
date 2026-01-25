@@ -152,21 +152,17 @@ export default class PlayScene extends Phaser.Scene {
         this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        // Touch controls
+        // Touch controls - Center screen pause
         this.input.on('pointerdown', (pointer) => {
             if (this.gameState !== GameState.PLAYING) return;
 
-            const midX = this.gameWidth / 2;
-            if (pointer.x < midX) {
-                this.touchLeft = true;
-            } else {
-                this.touchRight = true;
+            const width = this.cameras.main.width;
+            // Check if touch is in center area (35% - 65% width)
+            // This allows left/right sides to be safe zones if needed, 
+            // though movement is now handled by virtual buttons.
+            if (pointer.x > width * 0.35 && pointer.x < width * 0.65) {
+                this.togglePause();
             }
-        });
-
-        this.input.on('pointerup', () => {
-            this.touchLeft = false;
-            this.touchRight = false;
         });
         
         // Multi-touch for gliding (two pointers down)
@@ -195,6 +191,51 @@ export default class PlayScene extends Phaser.Scene {
         newRestartBtn.addEventListener('click', () => {
             this.startGame();
         });
+
+        // Mobile Controls
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+
+        // Helper functions for button events
+        const handleLeftDown = (e) => {
+            if (e.cancelable) e.preventDefault(); // Prevent default touch behavior
+            this.touchLeft = true;
+            btnLeft.classList.add('active');
+        };
+        const handleLeftUp = (e) => {
+            if (e.cancelable) e.preventDefault();
+            this.touchLeft = false;
+            btnLeft.classList.remove('active');
+        };
+        
+        const handleRightDown = (e) => {
+            if (e.cancelable) e.preventDefault();
+            this.touchRight = true;
+            btnRight.classList.add('active');
+        };
+        const handleRightUp = (e) => {
+            if (e.cancelable) e.preventDefault();
+            this.touchRight = false;
+            btnRight.classList.remove('active');
+        };
+
+        // Touch events
+        btnLeft.addEventListener('touchstart', handleLeftDown, { passive: false });
+        btnLeft.addEventListener('touchend', handleLeftUp);
+        btnLeft.addEventListener('touchcancel', handleLeftUp);
+        
+        btnRight.addEventListener('touchstart', handleRightDown, { passive: false });
+        btnRight.addEventListener('touchend', handleRightUp);
+        btnRight.addEventListener('touchcancel', handleRightUp);
+        
+        // Mouse events for testing
+        btnLeft.addEventListener('mousedown', handleLeftDown);
+        btnLeft.addEventListener('mouseup', handleLeftUp);
+        btnLeft.addEventListener('mouseleave', handleLeftUp);
+        
+        btnRight.addEventListener('mousedown', handleRightDown);
+        btnRight.addEventListener('mouseup', handleRightUp);
+        btnRight.addEventListener('mouseleave', handleRightUp);
 
         // Spacebar to start (pause logic moved to avoid conflict with gliding)
         this.input.keyboard.on('keydown-SPACE', () => {

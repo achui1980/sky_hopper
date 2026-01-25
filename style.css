@@ -10,6 +10,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100dvh; /* Mobile viewport fix */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden;
     touch-action: none;
@@ -354,4 +355,56 @@ button:active {
 #game-over-screen .high-score {
     color: #f39c12;
     font-size: 20px;
+}
+
+/* Mobile Controls */
+#mobile-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    pointer-events: none; /* Let clicks pass through container */
+    z-index: 50;
+    display: none; /* Hidden by default on desktop */
+}
+
+.control-btn {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    font-size: 36px;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto; /* Enable clicks on buttons */
+    touch-action: none; /* Prevent browser zooming/scrolling */
+    margin: 0;
+    padding: 0;
+    backdrop-filter: blur(2px);
+    transition: transform 0.1s, background 0.1s;
+}
+
+.control-btn:active, .control-btn.active {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+    #mobile-controls {
+        display: flex;
+    }
+    
+    #game-container {
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+    }
 }

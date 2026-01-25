@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Hopper Icon Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #1a1a2e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #f1c40f;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .preview-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        #phaser-canvas {
+            display: none; /* Hide the actual canvas */
+        }
+        img {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 100%;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        p {
+            color: #ccc;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Icon Generator</h1>
+    
+    <div class="container">
+        <div class="preview-box">
+            <h3>Generated Icon (512x512)</h3>
+            <img id="generated-icon" alt="Generating..." width="256" height="256">
+            <br>
+            <button id="download-btn">Download icon.png</button>
+        </div>
+        
+        <div class="preview-box" style="text-align: left;">
+            <h3>Instructions</h3>
+            <ol>
+                <li>Click the <strong>Download</strong> button.</li>
+                <li>Save the file as <strong>icon.png</strong> in your project root folder.</li>
+                <li>Refresh the game page to see the new favicon!</li>
+            </ol>
+        </div>
+    </div>
+
+    <div id="phaser-canvas"></div>
+
+    <script type="module">
+        import { generateTextures } from './js/TextureGenerator.js';
+
+        class IconScene extends Phaser.Scene {
+            constructor() {
+                super({ key: 'IconScene' });
+            }
+
+            create() {
+                // 1. Generate all game textures
+                generateTextures(this);
+
+                // 2. Compose the Icon
+                const width = 512;
+                const height = 512;
+
+                // Background Gradient (Sky to Stratosphere)
+                const graphics = this.add.graphics();
+                graphics.fillGradientStyle(0x87CEEB, 0x87CEEB, 0x4a69bd, 0x4a69bd, 1);
+                graphics.fillRect(0, 0, width, height);
+
+                // Add some subtle clouds in background
+                const cloud1 = this.add.image(100, 100, 'cloud-white');
+                cloud1.setScale(1.5).setAlpha(0.6);
+                
+                const cloud2 = this.add.image(400, 350, 'cloud-white');
+                cloud2.setScale(2.0).setAlpha(0.7);
+                
+                const cloud3 = this.add.image(150, 400, 'cloud-white');
+                cloud3.setScale(1.2).setAlpha(0.5);
+
+                // Add a star
+                const star = this.add.image(420, 100, 'coin'); // Reuse coin star style or just draw one
+                star.setScale(2).setAlpha(0.8);
+
+                // Main Subject: The Plane
+                // Draw a circle background for the plane to pop
+                graphics.fillStyle(0xffffff, 0.2);
+                graphics.fillCircle(width/2, height/2, 180);
+                
+                const plane = this.add.image(width/2, height/2, 'plane-boost');
+                plane.setScale(4); // Big plane
+                plane.setAngle(-15); // Dynamic angle
+
+                // Add "Speed lines"
+                graphics.lineStyle(4, 0xffffff, 0.5);
+                graphics.lineBetween(width/2 - 150, height/2 + 80, width/2 - 220, height/2 + 100);
+                graphics.lineBetween(width/2 - 120, height/2 + 100, width/2 - 180, height/2 + 120);
+
+                // 3. Export to Image
+                // Wait for one render frame
+                this.time.delayedCall(100, () => {
+                    this.game.renderer.snapshot((image) => {
+                        const iconImg = document.getElementById('generated-icon');
+                        iconImg.src = image.src;
+                        
+                        const downloadBtn = document.getElementById('download-btn');
+                        downloadBtn.onclick = () => {
+                            const link = document.createElement('a');
+                            link.download = 'icon.png';
+                            link.href = image.src;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+                    });
+                });
+            }
+        }
+
+        const config = {
+            type: Phaser.AUTO,
+            width: 512,
+            height: 512,
+            parent: 'phaser-canvas',
+            backgroundColor: '#000000',
+            scene: [IconScene],
+            scale: {
+                mode: Phaser.Scale.NONE
+            },
+            preserveDrawingBuffer: true // Important for snapshot
+        };
+
+        new Phaser.Game(config);
+    </script>
+</body>
+</html>
