@@ -11,12 +11,14 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
         
         // Movement properties
         this.moveSpeed = 300;
+        this.currentMoveSpeed = this.moveSpeed;
         this.jumpForce = -450;  // Reduced from -600 for shorter jumps
         this.baseGravityY = 400;
         this.gravityMultiplier = 1.0;
 
         // Visual state
         this.facingRight = true;
+        this.isGliding = false;
 
         // Rocket boost state
         this.isRocketBoosting = false;
@@ -65,17 +67,50 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
         // Handle rocket boost
         if (this.isRocketBoosting) {
             this.updateRocketBoost(delta);
+        } else {
+            // Gliding mechanic
+            // Can only glide if falling (velocity > 0) and input.up is pressed
+            if (input.up && this.body.velocity.y > 0) {
+                this.isGliding = true;
+                
+                // Reduce gravity significantly for gliding effect (10% of base)
+                this.body.setGravityY(this.baseGravityY * 0.1);
+                
+                // Cap terminal velocity to simulate air resistance/hovering
+                if (this.body.velocity.y > 50) {
+                    this.body.setVelocityY(50);
+                }
+                
+                // Increase horizontal speed while gliding
+                this.currentMoveSpeed = this.moveSpeed * 1.5;
+                
+                // Visual feedback: tilt plane slightly
+                this.setAngle(this.facingRight ? -10 : 10);
+            } else {
+                this.isGliding = false;
+                
+                // Restore gravity based on current biome multiplier
+                this.body.setGravityY(this.baseGravityY * this.gravityMultiplier);
+                
+                // Reset horizontal speed
+                this.currentMoveSpeed = this.moveSpeed;
+                
+                // Reset angle
+                this.setAngle(0);
+            }
         }
 
         // Handle horizontal movement
         if (input.left) {
-            this.body.setVelocityX(-this.moveSpeed);
+            this.body.setVelocityX(-this.currentMoveSpeed);
             this.setFlipX(true);
             this.facingRight = false;
+            if (this.isGliding) this.setAngle(10); // Tilt other way when gliding left
         } else if (input.right) {
-            this.body.setVelocityX(this.moveSpeed);
+            this.body.setVelocityX(this.currentMoveSpeed);
             this.setFlipX(false);
             this.facingRight = true;
+            if (this.isGliding) this.setAngle(-10); // Tilt other way when gliding right
         } else {
             this.body.setVelocityX(this.body.velocity.x * 0.85);
         }
@@ -151,10 +186,13 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
         this.facingRight = true;
         this.setFlipX(false);
         this.isRocketBoosting = false;
+        this.isGliding = false;
         this.rocketBoostTimer = 0;
         this.setTexture('plane');
         this.gravityMultiplier = 1.0;
         this.body.setGravityY(this.baseGravityY);
+        this.currentMoveSpeed = this.moveSpeed;
+        this.setAngle(0);
         if (this.trailEmitter) {
             this.trailEmitter.stop();
         }

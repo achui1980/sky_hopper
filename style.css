@@ -145,3 +145,19 @@ button:active {
     color: rgba(255, 255, 255, 0.8);
     font-size: 18px;
 }
+
+.high-score {
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+#start-screen .high-score {
+    color: #f39c12;
+    font-size: 18px;
+    margin-top: 5px;
+}
+
+#game-over-screen .high-score {
+    color: #f39c12;
+    font-size: 20px;
+}

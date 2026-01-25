@@ -20,34 +20,65 @@ export function generateTextures(scene) {
  */
 function generatePlaneTexture(scene) {
     const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
-    const width = 50;
+    const width = 60; // Slightly wider for better shape
     const height = 30;
 
-    // Body
-    graphics.fillStyle(0xe74c3c);
-    graphics.fillRect(0, height / 4, width * 0.8, height / 2);
-
-    // Wings (top and bottom)
-    graphics.fillStyle(0xc0392b);
-    graphics.fillRect(5, 0, width * 0.6, 6);
-    graphics.fillRect(5, height - 9, width * 0.6, 6);
-
-    // Tail
-    graphics.fillStyle(0xc0392b);
+    // -- Fuselage (Streamlined Body) --
+    // Main body gradient (simulated with layered shapes for simplicity in Graphics)
+    graphics.fillStyle(0xe74c3c); // Main Red
+    
+    // Draw a rounded fuselage using ellipse for the main body
+    graphics.fillEllipse(width * 0.6, height * 0.5, width * 0.8, height * 0.6);
+    
+    // Tail section using path (lines only)
     graphics.beginPath();
-    graphics.moveTo(0, height / 4);
-    graphics.lineTo(-10, 0);
-    graphics.lineTo(0, height * 3 / 4);
+    graphics.moveTo(width * 0.4, height * 0.2);
+    graphics.lineTo(0, height * 0.5);
+    graphics.lineTo(width * 0.4, height * 0.8);
     graphics.closePath();
     graphics.fillPath();
 
-    // Propeller
-    graphics.fillStyle(0x333333);
-    graphics.fillRect(width - 10, 5, 8, height - 10);
+    // Highlight (Top)
+    graphics.fillStyle(0xff7675);
+    graphics.fillEllipse(width * 0.5, height * 0.3, width * 0.6, height * 0.15);
 
-    // Cockpit
-    graphics.fillStyle(0x3498db);
-    graphics.fillRect(width / 2 - 5, height / 4 + 2, 15, height / 2 - 4);
+    // Shadow (Bottom)
+    graphics.fillStyle(0xc0392b);
+    graphics.fillEllipse(width * 0.5, height * 0.7, width * 0.5, height * 0.15);
+
+    // -- Wings (Monoplane Style) --
+    graphics.fillStyle(0xd35400); // Darker orange-red
+    // Main wing (perspective view)
+    graphics.beginPath();
+    graphics.moveTo(width * 0.3, height * 0.4);
+    graphics.lineTo(width * 0.7, height * 0.4);
+    graphics.lineTo(width * 0.6, height * 0.7); // Tapered back
+    graphics.lineTo(width * 0.4, height * 0.7);
+    graphics.closePath();
+    graphics.fillPath();
+
+    // -- Tail Fin --
+    graphics.fillStyle(0xc0392b);
+    graphics.beginPath();
+    graphics.moveTo(width * 0.1, height * 0.2);
+    graphics.lineTo(width * 0.2, height * 0.2);
+    graphics.lineTo(width * 0.05, 0); // Pointy top
+    graphics.closePath();
+    graphics.fillPath();
+
+    // -- Cockpit (Bubble Canopy) --
+    graphics.fillStyle(0x3498db); // Blue glass
+    graphics.fillEllipse(width * 0.55, height * 0.35, width * 0.25, height * 0.2);
+    // Glint
+    graphics.fillStyle(0xffffff, 0.6);
+    graphics.fillEllipse(width * 0.5, height * 0.3, 4, 2);
+
+    // -- Propeller (Blurred Disc) --
+    graphics.fillStyle(0x555555, 0.4); // Semi-transparent grey
+    graphics.fillEllipse(width - 2, height * 0.5, 4, height * 0.8);
+    // Propeller hub
+    graphics.fillStyle(0x333333);
+    graphics.fillCircle(width - 2, height * 0.5, 3);
 
     graphics.generateTexture('plane', width, height);
     graphics.destroy();
@@ -58,41 +89,76 @@ function generatePlaneTexture(scene) {
  */
 function generatePlaneBoostTexture(scene) {
     const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
-    const width = 50;
+    const width = 60;
     const height = 30;
 
-    // Body (orange when boosting)
-    graphics.fillStyle(0xff4500);
-    graphics.fillRect(0, height / 4, width * 0.8, height / 2);
-
-    // Wings
-    graphics.fillStyle(0xcc3700);
-    graphics.fillRect(5, 0, width * 0.6, 6);
-    graphics.fillRect(5, height - 9, width * 0.6, 6);
-
-    // Tail
-    graphics.fillStyle(0xcc3700);
+    // -- Fuselage (Streamlined Body - Orange/Gold for Boost) --
+    graphics.fillStyle(0xff9f43); // Orange
+    
+    // Draw a rounded fuselage using ellipse for the main body
+    graphics.fillEllipse(width * 0.6, height * 0.5, width * 0.8, height * 0.6);
+    
+    // Tail section using path (lines only)
     graphics.beginPath();
-    graphics.moveTo(0, height / 4);
-    graphics.lineTo(-10, 0);
-    graphics.lineTo(0, height * 3 / 4);
+    graphics.moveTo(width * 0.4, height * 0.2);
+    graphics.lineTo(0, height * 0.5);
+    graphics.lineTo(width * 0.4, height * 0.8);
     graphics.closePath();
     graphics.fillPath();
 
-    // Rocket exhaust
-    graphics.fillStyle(0xffcc00);
+    // Highlight
+    graphics.fillStyle(0xffcd61);
+    graphics.fillEllipse(width * 0.5, height * 0.3, width * 0.6, height * 0.15);
+
+    // -- Wings --
+    graphics.fillStyle(0xe67e22);
     graphics.beginPath();
-    graphics.moveTo(-10, height / 4);
-    graphics.lineTo(-30, height / 2);
-    graphics.lineTo(-10, height * 3 / 4);
+    graphics.moveTo(width * 0.3, height * 0.4);
+    graphics.lineTo(width * 0.7, height * 0.4);
+    graphics.lineTo(width * 0.6, height * 0.7);
+    graphics.lineTo(width * 0.4, height * 0.7);
     graphics.closePath();
     graphics.fillPath();
 
-    // Cockpit
-    graphics.fillStyle(0x3498db);
-    graphics.fillRect(width / 2 - 5, height / 4 + 2, 15, height / 2 - 4);
+    // -- Tail Fin --
+    graphics.fillStyle(0xe67e22);
+    graphics.beginPath();
+    graphics.moveTo(width * 0.1, height * 0.2);
+    graphics.lineTo(width * 0.2, height * 0.2);
+    graphics.lineTo(width * 0.05, 0);
+    graphics.closePath();
+    graphics.fillPath();
 
-    graphics.generateTexture('plane-boost', width + 30, height);
+    // -- Cockpit --
+    graphics.fillStyle(0x00d2d3); // Cyan glass
+    graphics.fillEllipse(width * 0.55, height * 0.35, width * 0.25, height * 0.2);
+
+    // -- Rocket Exhaust (Massive Flame) --
+    // Outer flame
+    graphics.fillStyle(0xff6b6b); // Red
+    graphics.beginPath();
+    graphics.moveTo(width * 0.1, height * 0.3);
+    graphics.lineTo(-20, height * 0.5);
+    graphics.lineTo(width * 0.1, height * 0.7);
+    graphics.closePath();
+    graphics.fillPath();
+    
+    // Inner flame
+    graphics.fillStyle(0xfeca57); // Yellow
+    graphics.beginPath();
+    graphics.moveTo(width * 0.1, height * 0.4);
+    graphics.lineTo(-10, height * 0.5);
+    graphics.lineTo(width * 0.1, height * 0.6);
+    graphics.closePath();
+    graphics.fillPath();
+
+    // -- Propeller (Blurred Disc - Faster) --
+    graphics.fillStyle(0xffffff, 0.3);
+    graphics.fillEllipse(width - 2, height * 0.5, 6, height);
+    graphics.fillStyle(0x333333);
+    graphics.fillCircle(width - 2, height * 0.5, 3);
+
+    graphics.generateTexture('plane-boost', width + 20, height);
     graphics.destroy();
 }
 
@@ -145,7 +211,7 @@ function generateCloudTextures(scene) {
 }
 
 /**
- * Helper function to draw cloud shape
+ * Helper function to draw cloud shape (Restored to original style)
  */
 function drawCloudShape(graphics, x, y, width, height, colorTop, colorBottom) {
     const radius = height / 2;
@@ -174,69 +240,100 @@ function drawCloudShape(graphics, x, y, width, height, colorTop, colorBottom) {
 function generateCollectibleTextures(scene) {
     // Rocket
     let graphics = scene.make.graphics({ x: 0, y: 0, add: false });
-    const rocketWidth = 20;
-    const rocketHeight = 30;
+    const rocketWidth = 24;
+    const rocketHeight = 40;
 
-    // Rocket body
+    // -- Rocket Body (Sci-fi Metallic) --
+    // Main fuselage
+    graphics.fillStyle(0xdcdde1); // Light metallic grey
+    
+    // Use ellipse for main body shape
+    graphics.fillEllipse(rocketWidth * 0.5, rocketHeight * 0.5, rocketWidth, rocketHeight * 1.5);
+    
+    // Cut off bottom? No need, just overlay with fins
+    
+    // Red Nose Cone
     graphics.fillStyle(0xe74c3c);
-    graphics.beginPath();
-    graphics.moveTo(rocketWidth / 2, 0); // Nose
-    graphics.lineTo(rocketWidth, rocketHeight * 0.7);
-    graphics.lineTo(rocketWidth - 3, rocketHeight);
-    graphics.lineTo(3, rocketHeight);
-    graphics.lineTo(0, rocketHeight * 0.7);
-    graphics.closePath();
-    graphics.fillPath();
+    // Use smaller ellipse for nose
+    graphics.fillEllipse(rocketWidth * 0.5, rocketHeight * 0.15, rocketWidth * 0.8, rocketHeight * 0.4);
 
-    // Window
-    graphics.fillStyle(0x3498db);
-    graphics.fillCircle(rocketWidth / 2, rocketHeight * 0.4, 4);
-
-    // Fins
+    // -- Fins --
     graphics.fillStyle(0xc0392b);
+    // Left Fin
     graphics.beginPath();
-    graphics.moveTo(0, rocketHeight * 0.6);
-    graphics.lineTo(-5, rocketHeight);
-    graphics.lineTo(5, rocketHeight);
+    graphics.moveTo(rocketWidth * 0.2, rocketHeight * 0.6);
+    graphics.lineTo(0, rocketHeight);
+    graphics.lineTo(rocketWidth * 0.3, rocketHeight * 0.8);
+    graphics.closePath();
+    graphics.fillPath();
+    // Right Fin
+    graphics.beginPath();
+    graphics.moveTo(rocketWidth * 0.8, rocketHeight * 0.6);
+    graphics.lineTo(rocketWidth, rocketHeight);
+    graphics.lineTo(rocketWidth * 0.7, rocketHeight * 0.8);
+    graphics.closePath();
+    graphics.fillPath();
+    // Center Fin
+    graphics.fillStyle(0xa52a2a);
+    graphics.fillRect(rocketWidth * 0.45, rocketHeight * 0.6, rocketWidth * 0.1, rocketHeight * 0.4);
+
+    // -- Window --
+    // Rim
+    graphics.fillStyle(0x7f8c8d);
+    graphics.fillCircle(rocketWidth * 0.5, rocketHeight * 0.45, 6);
+    // Glass
+    graphics.fillStyle(0x3498db);
+    graphics.fillCircle(rocketWidth * 0.5, rocketHeight * 0.45, 4);
+    // Reflection
+    graphics.fillStyle(0xffffff);
+    graphics.fillCircle(rocketWidth * 0.55, rocketHeight * 0.42, 1.5);
+
+    // -- Flame --
+    // Core
+    graphics.fillStyle(0xf1c40f);
+    graphics.beginPath();
+    graphics.moveTo(rocketWidth * 0.3, rocketHeight * 0.85);
+    graphics.lineTo(rocketWidth * 0.5, rocketHeight * 1.2);
+    graphics.lineTo(rocketWidth * 0.7, rocketHeight * 0.85);
+    graphics.closePath();
+    graphics.fillPath();
+    // Outer
+    graphics.fillStyle(0xe67e22, 0.6);
+    graphics.beginPath();
+    graphics.moveTo(rocketWidth * 0.2, rocketHeight * 0.85);
+    graphics.lineTo(rocketWidth * 0.5, rocketHeight * 1.3);
+    graphics.lineTo(rocketWidth * 0.8, rocketHeight * 0.85);
     graphics.closePath();
     graphics.fillPath();
 
-    graphics.beginPath();
-    graphics.moveTo(rocketWidth, rocketHeight * 0.6);
-    graphics.lineTo(rocketWidth + 5, rocketHeight);
-    graphics.lineTo(rocketWidth - 5, rocketHeight);
-    graphics.closePath();
-    graphics.fillPath();
-
-    // Flame
-    graphics.fillStyle(0xff9900);
-    graphics.beginPath();
-    graphics.moveTo(3, rocketHeight);
-    graphics.lineTo(rocketWidth / 2, rocketHeight + 10);
-    graphics.lineTo(rocketWidth - 3, rocketHeight);
-    graphics.closePath();
-    graphics.fillPath();
-
-    graphics.generateTexture('rocket', rocketWidth + 10, rocketHeight + 12);
+    graphics.generateTexture('rocket', rocketWidth + 10, rocketHeight + 15);
     graphics.destroy();
 
     // Coin
     graphics = scene.make.graphics({ x: 0, y: 0, add: false });
-    const coinRadius = 10;
+    const coinRadius = 12; // Slightly larger
 
-    // Outer ring
-    graphics.fillStyle(0xffd700);
+    // Outer ring (Gold)
+    graphics.fillStyle(0xf1c40f);
     graphics.fillCircle(coinRadius, coinRadius, coinRadius);
+    
+    // Edge Highlight
+    graphics.lineStyle(2, 0xf39c12);
+    graphics.strokeCircle(coinRadius, coinRadius, coinRadius);
 
-    // Inner circle
-    graphics.fillStyle(0xffec8b);
-    graphics.fillCircle(coinRadius, coinRadius, coinRadius * 0.7);
+    // Inner circle (Lighter Gold)
+    graphics.fillStyle(0xfcd670);
+    graphics.fillCircle(coinRadius, coinRadius, coinRadius * 0.75);
 
-    // Star
-    graphics.fillStyle(0xffd700);
-    drawStar(graphics, coinRadius, coinRadius, 5, coinRadius * 0.5, coinRadius * 0.25);
+    // Star symbol
+    graphics.fillStyle(0xf39c12);
+    drawStar(graphics, coinRadius, coinRadius, 5, coinRadius * 0.5, coinRadius * 0.2);
+    
+    // Shine
+    graphics.fillStyle(0xffffff, 0.8);
+    graphics.fillCircle(coinRadius * 0.6, coinRadius * 0.6, 2);
 
-    graphics.generateTexture('coin', coinRadius * 2, coinRadius * 2);
+    graphics.generateTexture('coin', coinRadius * 2 + 2, coinRadius * 2 + 2);
     graphics.destroy();
 }
 

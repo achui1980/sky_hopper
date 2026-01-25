@@ -37,6 +37,9 @@ export default class PlayScene extends Phaser.Scene {
         this.score = 0;
         this.maxHeight = 0;
         this.currentBiome = Biome.SKY;
+        
+        // Load high score
+        this.highScore = parseInt(localStorage.getItem('sky_hopper_high_score') || '0');
 
         // Reference to DOM elements
         this.scoreElement = document.getElementById('score');
@@ -44,6 +47,11 @@ export default class PlayScene extends Phaser.Scene {
         this.gameOverScreen = document.getElementById('game-over-screen');
         this.pauseScreen = document.getElementById('pause-screen');
         this.finalScoreElement = document.getElementById('final-score');
+        this.startHighScoreElement = document.getElementById('start-high-score');
+        this.gameOverHighScoreElement = document.getElementById('game-over-high-score');
+        
+        // Update high score display
+        this.updateHighScoreDisplay();
 
         // Screen dimensions
         this.gameWidth = this.scale.width;
@@ -105,6 +113,8 @@ export default class PlayScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         // Touch controls
         this.input.on('pointerdown', (pointer) => {
@@ -122,6 +132,9 @@ export default class PlayScene extends Phaser.Scene {
             this.touchLeft = false;
             this.touchRight = false;
         });
+        
+        // Multi-touch for gliding (two pointers down)
+        this.input.addPointer(1); // Ensure we have at least 2 pointers enabled
     }
 
     setupCollisions() {
@@ -147,11 +160,19 @@ export default class PlayScene extends Phaser.Scene {
             this.startGame();
         });
 
-        // Spacebar to start or pause
+        // Spacebar to start (pause logic moved to avoid conflict with gliding)
         this.input.keyboard.on('keydown-SPACE', () => {
             if (this.gameState === GameState.MENU || this.gameState === GameState.GAME_OVER) {
                 this.startGame();
             } else if (this.gameState === GameState.PLAYING) {
+                // Space is now used for gliding, so we use 'P' or Escape for pause
+                // Or we can check if it's a short press vs hold, but for now let's use P for pause
+            }
+        });
+        
+        // P key for pause
+        this.input.keyboard.on('keydown-P', () => {
+             if (this.gameState === GameState.PLAYING) {
                 this.togglePause();
             }
         });
@@ -206,9 +227,14 @@ export default class PlayScene extends Phaser.Scene {
         this.updateBackground();
 
         // Get input
+        // Check for multi-touch (two pointers down)
+        const activePointers = this.input.pointer1.isDown + this.input.pointer2.isDown;
+        const isMultiTouch = activePointers >= 2;
+
         const input = {
             left: this.cursors.left.isDown || this.keyA.isDown || this.touchLeft,
-            right: this.cursors.right.isDown || this.keyD.isDown || this.touchRight
+            right: this.cursors.right.isDown || this.keyD.isDown || this.touchRight,
+            up: this.cursors.up.isDown || this.keyW.isDown || this.keySpace.isDown || isMultiTouch
         };
 
         // Update plane
@@ -325,6 +351,13 @@ export default class PlayScene extends Phaser.Scene {
     gameOver() {
         this.gameState = GameState.GAME_OVER;
         
+        // Check and update high score
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            localStorage.setItem('sky_hopper_high_score', this.highScore);
+            this.updateHighScoreDisplay();
+        }
+
         // Play game over sound
         this.audio.playGameOver();
         
@@ -333,6 +366,15 @@ export default class PlayScene extends Phaser.Scene {
         this.finalScoreElement.textContent = `Score: ${this.score}`;
 
         console.log('Game over - Score:', this.score);
+    }
+
+    updateHighScoreDisplay() {
+        if (this.startHighScoreElement) {
+            this.startHighScoreElement.textContent = `High Score: ${this.highScore}`;
+        }
+        if (this.gameOverHighScoreElement) {
+            this.gameOverHighScoreElement.textContent = `High Score: ${this.highScore}`;
+        }
     }
 
     getCurrentBiome() {
