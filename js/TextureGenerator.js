@@ -7,12 +7,37 @@
  * @param {Phaser.Scene} scene - The scene to create textures in
  */
 export function generateTextures(scene) {
+    generateBackgroundTexture(scene);
     generatePlaneTexture(scene);
     generatePlaneBoostTexture(scene);
     generateCloudTextures(scene);
     generateCollectibleTextures(scene);
     generateSpaceTextures(scene);
     generateParticleTextures(scene);
+}
+
+/**
+ * Generate the background texture
+ */
+function generateBackgroundTexture(scene) {
+    const width = 512; // Texture size
+    const height = 512;
+    
+    const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+    
+    // Transparent background to let Camera background color show through
+    // Only draw subtle patterns
+    
+    graphics.fillStyle(0xffffff, 0.1);
+    for (let i = 0; i < 20; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        const r = 10 + Math.random() * 40;
+        graphics.fillCircle(x, y, r);
+    }
+
+    graphics.generateTexture('bg-sky', width, height);
+    graphics.destroy();
 }
 
 /**
@@ -381,6 +406,32 @@ function generateCollectibleTextures(scene) {
     graphics.fillCircle(shieldRadius * 2 - 5, shieldRadius, 3);
 
     graphics.generateTexture('shield', shieldRadius * 2, shieldRadius * 2);
+    graphics.destroy();
+    
+    // Fate Card (Question Mark)
+    graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+    const cardWidth = 24;
+    const cardHeight = 32;
+    
+    // Card Body (Back)
+    graphics.fillStyle(0x2c3e50);
+    graphics.fillRoundedRect(0, 0, cardWidth, cardHeight, 4);
+    
+    // Border
+    graphics.lineStyle(2, 0xf1c40f);
+    graphics.strokeRoundedRect(0, 0, cardWidth, cardHeight, 4);
+    
+    // Question Mark
+    graphics.fillStyle(0xf1c40f);
+    // Draw simplified question mark
+    graphics.fillCircle(cardWidth/2, cardHeight*0.35, 6); // Top circle
+    graphics.fillStyle(0x2c3e50);
+    graphics.fillCircle(cardWidth/2, cardHeight*0.35, 3); // Hole
+    graphics.fillStyle(0xf1c40f);
+    graphics.fillRect(cardWidth/2 - 2, cardHeight*0.35, 4, cardHeight*0.3); // Stem
+    graphics.fillCircle(cardWidth/2, cardHeight*0.8, 2.5); // Dot
+    
+    graphics.generateTexture('fate-card', cardWidth, cardHeight);
     graphics.destroy();
 }
 

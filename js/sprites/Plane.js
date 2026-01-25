@@ -15,6 +15,8 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
         this.jumpForce = -450;  // Reduced from -600 for shorter jumps
         this.baseGravityY = 400;
         this.gravityMultiplier = 1.0;
+        this.gravityModifier = 1.0; // From Fate Cards (Curse/Blessing)
+        this.speedModifier = 1.0; // From Fate Cards
 
         // Visual state
         this.facingRight = true;
@@ -74,7 +76,8 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
                 this.isGliding = true;
                 
                 // Reduce gravity significantly for gliding effect (10% of base)
-                this.body.setGravityY(this.baseGravityY * 0.1);
+                // Also account for gravityModifier (e.g. if cursed, gliding is harder)
+                this.body.setGravityY(this.baseGravityY * 0.1 * this.gravityModifier);
                 
                 // Cap terminal velocity to simulate air resistance/hovering
                 if (this.body.velocity.y > 50) {
@@ -82,18 +85,18 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
                 }
                 
                 // Increase horizontal speed while gliding
-                this.currentMoveSpeed = this.moveSpeed * 1.5;
+                this.currentMoveSpeed = this.moveSpeed * 1.5 * this.speedModifier;
                 
                 // Visual feedback: tilt plane slightly
                 this.setAngle(this.facingRight ? -10 : 10);
             } else {
                 this.isGliding = false;
                 
-                // Restore gravity based on current biome multiplier
-                this.body.setGravityY(this.baseGravityY * this.gravityMultiplier);
+                // Restore gravity based on current biome multiplier AND fate modifier
+                this.body.setGravityY(this.baseGravityY * this.gravityMultiplier * this.gravityModifier);
                 
-                // Reset horizontal speed
-                this.currentMoveSpeed = this.moveSpeed;
+                // Reset horizontal speed with modifier
+                this.currentMoveSpeed = this.moveSpeed * this.speedModifier;
                 
                 // Reset angle
                 this.setAngle(0);
@@ -176,7 +179,21 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
 
     setGravityMultiplier(multiplier) {
         this.gravityMultiplier = multiplier;
-        this.body.setGravityY(this.baseGravityY * multiplier);
+        // Re-apply gravity with both multipliers
+        if (!this.isGliding) {
+            this.body.setGravityY(this.baseGravityY * this.gravityMultiplier * this.gravityModifier);
+        }
+    }
+
+    setFateModifiers(gravityMod, speedMod) {
+        this.gravityModifier = gravityMod;
+        this.speedModifier = speedMod;
+        
+        // Update current physics
+        this.currentMoveSpeed = this.moveSpeed * this.speedModifier;
+        if (!this.isGliding && !this.isRocketBoosting) {
+            this.body.setGravityY(this.baseGravityY * this.gravityMultiplier * this.gravityModifier);
+        }
     }
 
     reset(x, y) {
@@ -190,6 +207,8 @@ export default class Plane extends Phaser.Physics.Arcade.Sprite {
         this.rocketBoostTimer = 0;
         this.setTexture('plane');
         this.gravityMultiplier = 1.0;
+        this.gravityModifier = 1.0;
+        this.speedModifier = 1.0;
         this.body.setGravityY(this.baseGravityY);
         this.currentMoveSpeed = this.moveSpeed;
         this.setAngle(0);

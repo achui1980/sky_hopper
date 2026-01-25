@@ -42,6 +42,7 @@ export default class CloudManager {
         this.coinChance = 0.15;
         this.rocketChance = 0.03;
         this.dragonBallChance = 0.10;
+        this.fateCardChance = 0.10;
     }
 
     reset() {
@@ -181,6 +182,12 @@ export default class CloudManager {
                 cloudY - 35,
                 CollectibleType.DRAGON_BALL
             );
+        } else if (roll < this.rocketChance + this.coinChance + this.dragonBallChance + this.fateCardChance) {
+            this.spawnCollectible(
+                cloudX + this.cloudWidth / 2 - 12,
+                cloudY - 40,
+                CollectibleType.FATE_CARD
+            );
         }
     }
 
@@ -266,7 +273,7 @@ export default class CloudManager {
         const planeBottom = planeBounds.bottom;
         
         // Use a more forgiving collision check - check if plane bottom is within a small range above cloud top
-        const COLLISION_TOLERANCE = 15; // pixels of tolerance
+        const COLLISION_TOLERANCE = 25; // pixels of tolerance
 
         const activeClouds = this.clouds.getChildren().filter(c => c.active && !c.destroyed);
 

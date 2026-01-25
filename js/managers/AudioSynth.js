@@ -274,6 +274,49 @@ export default class AudioSynth {
     }
 
     /**
+     * Fate Card Flip - Whoosh
+     */
+    playCardFlip() {
+        if (!this.enabled) return;
+        this.resume();
+        
+        this.playTone(400, 0.1, 'sine', 0.2, 600);
+    }
+
+    /**
+     * Curse Sound - Alarm
+     */
+    playCurse() {
+        if (!this.enabled) return;
+        this.resume();
+        
+        // Alarm sirens
+        this.playTone(800, 0.1, 'sawtooth', 0.3, 600);
+        setTimeout(() => this.playTone(800, 0.1, 'sawtooth', 0.3, 600), 150);
+        setTimeout(() => this.playTone(800, 0.1, 'sawtooth', 0.3, 600), 300);
+    }
+
+    /**
+     * Blessing Sound - Magical chime based on rarity
+     */
+    playBlessing(rarity) {
+        if (!this.enabled) return;
+        this.resume();
+        
+        const baseFreq = rarity === 'legendary' ? 880 : (rarity === 'epic' ? 660 : 440);
+        const type = rarity === 'legendary' ? 'triangle' : 'sine';
+        
+        // Arpeggio
+        this.playTone(baseFreq, 0.1, type, 0.2);
+        setTimeout(() => this.playTone(baseFreq * 1.25, 0.1, type, 0.2), 80);
+        setTimeout(() => this.playTone(baseFreq * 1.5, 0.2, type, 0.2), 160);
+        
+        if (rarity === 'legendary' || rarity === 'epic') {
+            setTimeout(() => this.playTone(baseFreq * 2, 0.4, type, 0.2), 240);
+        }
+    }
+
+    /**
      * Toggle sound on/off
      */
     toggle() {

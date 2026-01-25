@@ -21,6 +21,17 @@
                 <div class="db-slot"></div>
             </div>
             <div id="shield-indicator" class="hidden">SHIELD ACTIVE</div>
+            
+            <div id="fate-status-container" class="hidden">
+                <div id="fate-status-card" class="mini-card">
+                    <div id="fate-status-icon"></div>
+                    <div id="fate-status-text">
+                        <div id="fate-status-title"></div>
+                        <div id="fate-status-desc"></div>
+                    </div>
+                </div>
+            </div>
+
             <div id="start-screen">
                 <h1>Starbound Aviator</h1>
                 <p>Use ARROW KEYS or A/D to move</p>
@@ -41,6 +52,22 @@
             <div id="pause-screen" class="hidden">
                 <h1>PAUSED</h1>
                 <p>Press P to continue</p>
+            </div>
+            
+            <div id="fate-screen" class="hidden">
+                <h1>Wheel of Fate</h1>
+                <div class="fate-card-container">
+                    <div id="fate-card" class="card">
+                        <div class="card-face card-back">?</div>
+                        <div class="card-face card-front">
+                            <div id="fate-icon"></div>
+                            <div id="fate-title"></div>
+                            <div id="fate-desc"></div>
+                        </div>
+                    </div>
+                </div>
+                <p id="fate-instruction">Click the card to reveal your destiny!</p>
+                <button id="fate-continue-btn" class="hidden">Accept Fate</button>
             </div>
         </div>
     </div>

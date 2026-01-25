@@ -5,7 +5,8 @@
 export const CollectibleType = {
     ROCKET: 'rocket',
     COIN: 'coin',
-    DRAGON_BALL: 'dragonball'
+    DRAGON_BALL: 'dragonball',
+    FATE_CARD: 'fate-card'
 };
 
 export default class Collectible extends Phaser.Physics.Arcade.Sprite {
@@ -13,6 +14,7 @@ export default class Collectible extends Phaser.Physics.Arcade.Sprite {
         let texture = 'coin';
         if (type === CollectibleType.ROCKET) texture = 'rocket';
         else if (type === CollectibleType.DRAGON_BALL) texture = 'dragonball';
+        else if (type === CollectibleType.FATE_CARD) texture = 'fate-card';
         
         super(scene, x, y, texture);
 
@@ -83,6 +85,7 @@ export default class Collectible extends Phaser.Physics.Arcade.Sprite {
         let texture = 'coin';
         if (type === CollectibleType.ROCKET) texture = 'rocket';
         else if (type === CollectibleType.DRAGON_BALL) texture = 'dragonball';
+        else if (type === CollectibleType.FATE_CARD) texture = 'fate-card';
         
         this.setTexture(texture);
 

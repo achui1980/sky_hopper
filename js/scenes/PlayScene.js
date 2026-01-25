@@ -31,8 +31,13 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     create() {
-        // Game state
-        this.gameState = GameState.MENU;
+        this.width = this.game.config.width;
+        this.height = this.game.config.height;
+        this.gameState = GameState.WAITING_TO_START; // Fix: Initialize game state
+
+        // Background
+        this.bg = this.add.tileSprite(0, 0, this.width, this.height, 'bg-sky');
+        this.bg.setOrigin(0, 0);
         this.isPaused = false;
         this.score = 0;
         this.maxHeight = 0;
@@ -40,6 +45,7 @@ export default class PlayScene extends Phaser.Scene {
         this.dragonBallCount = 0;
         this.hasShield = false;
         this.shieldSprite = null;
+        this.scoreMultiplier = 1.0;
         
         // Load high score
         this.highScore = parseInt(localStorage.getItem('sky_hopper_high_score') || '0');
@@ -55,9 +61,33 @@ export default class PlayScene extends Phaser.Scene {
         this.dbSlots = document.querySelectorAll('.db-slot');
         this.shieldIndicator = document.getElementById('shield-indicator');
         
+        // Fate UI
+        this.fateScreen = document.getElementById('fate-screen');
+        this.fateCard = document.getElementById('fate-card');
+        this.fateCardFront = this.fateCard.querySelector('.card-front');
+        this.fateIcon = document.getElementById('fate-icon');
+        this.fateTitle = document.getElementById('fate-title');
+        this.fateDesc = document.getElementById('fate-desc');
+        this.fateInstruction = document.getElementById('fate-instruction');
+        
+        // Fate Status UI
+        this.fateStatusContainer = document.getElementById('fate-status-container');
+        this.fateStatusCard = document.getElementById('fate-status-card');
+        this.fateStatusIcon = document.getElementById('fate-status-icon');
+        this.fateStatusTitle = document.getElementById('fate-status-title');
+        this.fateStatusDesc = document.getElementById('fate-status-desc');
+        
+        // Remove setupFateUI call as interaction is removed
+
         // Reset UI
         this.updateDragonBallUI();
         this.shieldIndicator.classList.add('hidden');
+        
+        // Reset fate UI
+        this.fateScreen.classList.add('hidden');
+        this.fateCard.classList.remove('flipped');
+        this.fateInstruction.classList.add('hidden'); // Hide instruction
+        this.fateStatusContainer.classList.add('hidden'); // Hide status initially
         
         // Update high score display
         this.updateHighScoreDisplay();
@@ -194,6 +224,18 @@ export default class PlayScene extends Phaser.Scene {
         });
     }
 
+    setupFateUI() {
+        this.fateCard.addEventListener('click', () => {
+            if (!this.fateCard.classList.contains('flipped') && this.gameState === 'fate') {
+                this.revealFate();
+            }
+        });
+        
+        this.fateContinueBtn.addEventListener('click', () => {
+            this.resumeFromFate();
+        });
+    }
+
     showMenu() {
         this.gameState = GameState.MENU;
         this.startScreen.classList.remove('hidden');
@@ -206,6 +248,7 @@ export default class PlayScene extends Phaser.Scene {
         this.score = 0;
         this.maxHeight = 0;
         this.currentBiome = Biome.SKY;
+        this.scoreMultiplier = 1.0;
         this.dragonBallCount = 0;
         this.hasShield = false;
         if (this.shieldSprite) {
@@ -214,6 +257,12 @@ export default class PlayScene extends Phaser.Scene {
         }
         this.updateDragonBallUI();
         this.shieldIndicator.classList.add('hidden');
+        
+        // Reset fate UI
+        this.fateScreen.classList.add('hidden');
+        this.fateCard.classList.remove('flipped');
+        this.fateInstruction.classList.add('hidden');
+        this.fateStatusContainer.classList.add('hidden');
 
         // Hide UI screens
         this.startScreen.classList.add('hidden');
@@ -221,7 +270,7 @@ export default class PlayScene extends Phaser.Scene {
         this.pauseScreen.classList.add('hidden');
 
         // Reset plane
-        this.plane.reset(this.gameWidth / 2, this.gameHeight - 150);
+        this.plane.reset(this.gameWidth / 2, this.gameHeight - 130);
 
         // Reset clouds
         this.cloudManager.reset();
@@ -273,9 +322,14 @@ export default class PlayScene extends Phaser.Scene {
 
             // Scroll world down
             this.cloudManager.scrollDown(scrollAmount);
+            
+            // Scroll background (parallax)
+            if (this.bg) {
+                this.bg.tilePositionY -= scrollAmount * 0.5;
+            }
 
             // Update score
-            this.maxHeight += scrollAmount;
+            this.maxHeight += scrollAmount * this.scoreMultiplier;
             this.score = Math.floor(this.maxHeight);
             this.scoreElement.textContent = this.score;
         }
@@ -363,12 +417,14 @@ export default class PlayScene extends Phaser.Scene {
             this.cameras.main.shake(150, 0.005);
             // Rocket sound is played in Plane.activateRocketBoost()
         } else if (collectible.type === 'coin') {
-            this.score += 100;
+            this.score += 100 * this.scoreMultiplier;
             this.scoreElement.textContent = this.score;
             // Play coin collect sound
             this.audio.playCoin();
         } else if (collectible.type === 'dragonball') {
             this.collectDragonBall();
+        } else if (collectible.type === 'fate-card') {
+            this.triggerFateCard();
         }
         collectible.collect();
     }
@@ -401,6 +457,168 @@ export default class PlayScene extends Phaser.Scene {
         });
     }
     
+    triggerFateCard() {
+        this.gameState = 'fate'; // Custom state
+        
+        // Pause physics
+        this.plane.body.setVelocity(0, 0);
+        this.plane.body.moves = false;
+        
+        // Show Fate UI
+        this.fateScreen.classList.remove('hidden');
+        this.fateCard.classList.remove('flipped');
+        this.fateInstruction.classList.add('hidden'); // Hide instruction
+        this.fateCardFront.className = 'card-face card-front'; // Reset classes
+        this.fateIcon.textContent = '';
+        this.fateTitle.textContent = '';
+        this.fateDesc.textContent = '';
+        
+        // Auto reveal after short delay
+        setTimeout(() => {
+            this.revealFate();
+        }, 500);
+    }
+    
+    revealFate() {
+        this.fateCard.classList.add('flipped');
+        
+        // Logic: 10% Curse, 90% Blessing
+        const roll = Math.random();
+        const isCurse = roll < 0.1;
+        
+        let result = {};
+        
+        if (isCurse) {
+            result = this.applyCurse();
+        } else {
+            result = this.applyBlessing();
+        }
+        
+        // Play sound
+        if (this.audio.playCardFlip) {
+            this.audio.playCardFlip();
+        }
+        
+        // Update Status UI
+        this.updateFateStatusUI(result);
+        
+        // Auto continue after showing result
+        setTimeout(() => {
+            this.resumeFromFate();
+        }, 2000);
+    }
+    
+    updateFateStatusUI(result) {
+        this.fateStatusCard.className = `mini-card ${result.rarity}`;
+        this.fateStatusIcon.textContent = result.icon;
+        this.fateStatusTitle.textContent = result.title;
+        this.fateStatusDesc.textContent = result.desc;
+        this.fateStatusContainer.classList.remove('hidden');
+    }
+    
+    applyCurse() {
+        this.fateCardFront.classList.add('curse');
+        this.fateIcon.textContent = '💀';
+        this.fateTitle.textContent = 'CURSE';
+        
+        // Gravity increase: 10% - 30%
+        const severity = 0.1 + Math.random() * 0.2;
+        const newGravityMod = 1 + severity;
+        
+        this.plane.setFateModifiers(newGravityMod, 1.0);
+        
+        const desc = `Gravity +${Math.round(severity * 100)}%`;
+        this.fateDesc.textContent = desc;
+        
+        // Shake effect
+        this.cameras.main.shake(500, 0.02);
+        
+        // Sound
+        if (this.audio.playCurse) {
+            this.audio.playCurse();
+        }
+        
+        return {
+            rarity: 'curse',
+            icon: '💀',
+            title: 'CURSE',
+            desc: desc
+        };
+    }
+    
+    applyBlessing() {
+        // Roll for Rarity: Common (0-50), Rare (51-80), Epic (81-95), Legendary (96-100)
+        const roll = Math.random() * 100;
+        let rarity = 'common';
+        let multiplierRange = [0.05, 0.10];
+        
+        if (roll > 95) {
+            rarity = 'legendary';
+            multiplierRange = [0.36, 0.60];
+        } else if (roll > 80) {
+            rarity = 'epic';
+            multiplierRange = [0.21, 0.35];
+        } else if (roll > 50) {
+            rarity = 'rare';
+            multiplierRange = [0.11, 0.20];
+        }
+        
+        this.fateCardFront.classList.add(rarity);
+        
+        // Roll for Type: Gravity Down, Speed Up, Score Multiplier
+        const typeRoll = Math.random();
+        const value = multiplierRange[0] + Math.random() * (multiplierRange[1] - multiplierRange[0]);
+        
+        let icon = '';
+        let title = '';
+        let desc = '';
+        
+        if (typeRoll < 0.33) {
+            // Gravity Down (Lightness)
+            icon = '🪶';
+            title = 'LIGHTNESS';
+            desc = `Gravity -${Math.round(value * 100)}%`;
+            
+            this.plane.setFateModifiers(1 - value, 1.0);
+        } else if (typeRoll < 0.66) {
+            // Speed Up (Turbo)
+            icon = '⚡';
+            title = 'TURBO';
+            desc = `Speed +${Math.round(value * 100)}%`;
+            
+            this.plane.setFateModifiers(1.0, 1 + value);
+        } else {
+            // Score Multiplier (Greed)
+            icon = '💰';
+            title = 'GREED';
+            desc = `Score x${(1 + value).toFixed(1)}`;
+            
+            this.scoreMultiplier = 1 + value;
+        }
+        
+        this.fateIcon.textContent = icon;
+        this.fateTitle.textContent = title;
+        this.fateDesc.textContent = desc;
+        
+        // Sound
+        if (this.audio.playBlessing) {
+            this.audio.playBlessing(rarity);
+        }
+        
+        return {
+            rarity: rarity,
+            icon: icon,
+            title: title,
+            desc: desc
+        };
+    }
+    
+    resumeFromFate() {
+        this.fateScreen.classList.add('hidden');
+        this.gameState = GameState.PLAYING;
+        this.plane.body.moves = true;
+    }
+
     activateShield() {
         this.hasShield = true;
         this.dragonBallCount = 0;
