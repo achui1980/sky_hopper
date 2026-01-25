@@ -72,10 +72,6 @@ export default class PlayScene extends Phaser.Scene {
         
         // Fate Status UI
         this.fateStatusContainer = document.getElementById('fate-status-container');
-        this.fateStatusCard = document.getElementById('fate-status-card');
-        this.fateStatusIcon = document.getElementById('fate-status-icon');
-        this.fateStatusTitle = document.getElementById('fate-status-title');
-        this.fateStatusDesc = document.getElementById('fate-status-desc');
         
         // Remove setupFateUI call as interaction is removed
 
@@ -88,6 +84,7 @@ export default class PlayScene extends Phaser.Scene {
         this.fateCard.classList.remove('flipped');
         this.fateInstruction.classList.add('hidden'); // Hide instruction
         this.fateStatusContainer.classList.add('hidden'); // Hide status initially
+        this.activeBuffs = []; // Store active buffs (max 3)
         
         // Update high score display
         this.updateHighScoreDisplay();
@@ -263,6 +260,8 @@ export default class PlayScene extends Phaser.Scene {
         this.fateCard.classList.remove('flipped');
         this.fateInstruction.classList.add('hidden');
         this.fateStatusContainer.classList.add('hidden');
+        this.activeBuffs = [];
+        this.updateFateStatusUI(); // Clear UI
 
         // Hide UI screens
         this.startScreen.classList.add('hidden');
@@ -499,8 +498,8 @@ export default class PlayScene extends Phaser.Scene {
             this.audio.playCardFlip();
         }
         
-        // Update Status UI
-        this.updateFateStatusUI(result);
+        // Add buff and update UI
+        this.addBuff(result);
         
         // Auto continue after showing result
         setTimeout(() => {
@@ -508,12 +507,64 @@ export default class PlayScene extends Phaser.Scene {
         }, 2000);
     }
     
-    updateFateStatusUI(result) {
-        this.fateStatusCard.className = `mini-card ${result.rarity}`;
-        this.fateStatusIcon.textContent = result.icon;
-        this.fateStatusTitle.textContent = result.title;
-        this.fateStatusDesc.textContent = result.desc;
-        this.fateStatusContainer.classList.remove('hidden');
+    addBuff(buff) {
+        // Add to list
+        this.activeBuffs.push(buff);
+        
+        // Maintain max 3
+        if (this.activeBuffs.length > 3) {
+            this.activeBuffs.shift();
+        }
+        
+        // Apply effects
+        this.applyActiveBuffs();
+        
+        // Update UI
+        this.updateFateStatusUI();
+    }
+    
+    applyActiveBuffs() {
+        let totalGravityMod = 1.0;
+        let totalSpeedMod = 1.0;
+        let totalScoreMod = 1.0;
+        
+        this.activeBuffs.forEach(buff => {
+            if (buff.type === 'gravity') {
+                totalGravityMod *= buff.value;
+            } else if (buff.type === 'speed') {
+                totalSpeedMod *= buff.value;
+            } else if (buff.type === 'score') {
+                totalScoreMod *= buff.value;
+            }
+        });
+        
+        this.plane.setFateModifiers(totalGravityMod, totalSpeedMod);
+        this.scoreMultiplier = totalScoreMod;
+    }
+    
+    updateFateStatusUI() {
+        // Clear container
+        this.fateStatusContainer.innerHTML = '';
+        
+        if (this.activeBuffs.length > 0) {
+            this.fateStatusContainer.classList.remove('hidden');
+            
+            // Render each buff
+            this.activeBuffs.forEach(buff => {
+                const card = document.createElement('div');
+                card.className = `mini-card ${buff.rarity}`;
+                card.innerHTML = `
+                    <div class="fate-status-icon">${buff.icon}</div>
+                    <div class="fate-status-text">
+                        <div class="fate-status-title">${buff.title}</div>
+                        <div class="fate-status-desc">${buff.desc}</div>
+                    </div>
+                `;
+                this.fateStatusContainer.appendChild(card);
+            });
+        } else {
+            this.fateStatusContainer.classList.add('hidden');
+        }
     }
     
     applyCurse() {
@@ -523,9 +574,6 @@ export default class PlayScene extends Phaser.Scene {
         
         // Gravity increase: 10% - 30%
         const severity = 0.1 + Math.random() * 0.2;
-        const newGravityMod = 1 + severity;
-        
-        this.plane.setFateModifiers(newGravityMod, 1.0);
         
         const desc = `Gravity +${Math.round(severity * 100)}%`;
         this.fateDesc.textContent = desc;
@@ -539,6 +587,8 @@ export default class PlayScene extends Phaser.Scene {
         }
         
         return {
+            type: 'gravity',
+            value: 1 + severity,
             rarity: 'curse',
             icon: '💀',
             title: 'CURSE',
@@ -572,28 +622,30 @@ export default class PlayScene extends Phaser.Scene {
         let icon = '';
         let title = '';
         let desc = '';
+        let type = '';
+        let modValue = 0;
         
         if (typeRoll < 0.33) {
             // Gravity Down (Lightness)
             icon = '🪶';
             title = 'LIGHTNESS';
             desc = `Gravity -${Math.round(value * 100)}%`;
-            
-            this.plane.setFateModifiers(1 - value, 1.0);
+            type = 'gravity';
+            modValue = 1 - value;
         } else if (typeRoll < 0.66) {
             // Speed Up (Turbo)
             icon = '⚡';
             title = 'TURBO';
             desc = `Speed +${Math.round(value * 100)}%`;
-            
-            this.plane.setFateModifiers(1.0, 1 + value);
+            type = 'speed';
+            modValue = 1 + value;
         } else {
             // Score Multiplier (Greed)
             icon = '💰';
             title = 'GREED';
             desc = `Score x${(1 + value).toFixed(1)}`;
-            
-            this.scoreMultiplier = 1 + value;
+            type = 'score';
+            modValue = 1 + value;
         }
         
         this.fateIcon.textContent = icon;
@@ -606,6 +658,8 @@ export default class PlayScene extends Phaser.Scene {
         }
         
         return {
+            type: type,
+            value: modValue,
             rarity: rarity,
             icon: icon,
             title: title,

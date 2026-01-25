@@ -1,6 +1,7 @@
 # Agent Operational Guide: Sky Hopper (Starbound Aviator)
 
 Guidelines for AI agents working on the Starbound Aviator (Sky Hopper) game.
+Demo: https://traeskyhopper5ln9.vercel.app/
 
 ## Project Overview
 
@@ -21,16 +22,19 @@ php -S localhost:8080          # Alternative
 ```
 
 ### Testing
-**No automated tests.** Manual testing only:
-1. Start server and open browser
-2. Test movement (Arrow Keys / A/D / Touch)
-3. Verify collision, bouncing, score tracking
-4. Test biome transitions (2000+ and 5000+ score)
-5. Collect items (coins, rockets)
-6. Check for visual artifacts and 60 FPS
+**Manual testing only** (no automated test framework configured). Start server and test:
+1. Basic Controls (Arrow Keys / A-D / Touch)
+2. Physics (collision, bouncing, gravity)
+3. Score System (points, high score persistence)
+4. Biome Transitions (2000+ stratosphere, 5000+ space)
+5. Collectibles (coins, rockets, dragon balls)
+6. Performance (60 FPS desktop, 30+ FPS mobile)
+7. Visual (no ghosting, proper rendering)
+8. Audio (sound effects, background music)
 
-### Linting
-**No linter configured.** Follow code style guidelines below.
+### Linting & Deployment
+- **No linter configured.** Follow code style guidelines below.
+- **Deployment:** `vercel deploy` (Vercel configured), `vercel dev` for local testing.
 
 ## Code Style & Conventions
 
@@ -59,11 +63,23 @@ import { Biome, BIOME_THRESHOLDS } from '../scenes/PlayScene.js';
 import Plane from './sprites/Plane';
 ```
 
-**Import Order:**
-1. Phaser classes (usually via global `Phaser` object)
-2. Local sprite classes
-3. Manager classes
-4. Constants/enums
+**Import Order:** Phaser classes → Local sprite classes → Manager classes → Constants/enums
+
+### Types & Type Checking
+**No TypeScript** - Pure JavaScript ES6+ with JSDoc comments for documentation:
+
+```javascript
+/**
+ * @param {Phaser.Scene} scene - The scene this sprite belongs to
+ * @param {number} x - X coordinate
+ * @param {number} y - Y coordinate
+ */
+constructor(scene, x, y) {
+    // Implementation
+}
+```
+
+**Type Patterns:** Use `@type` for complex objects, `@enum` for constants, `@returns` for functions. No runtime type checking needed.
 
 ### Error Handling
 - `console.error()` for critical failures
@@ -163,20 +179,12 @@ js/
 4. **Collision issues:** Not checking `plane.body.velocity.y > 0` for one-way platforms
 5. **Texture problems:** Missing deadly variants for meteors/satellites (use `-deadly` suffix)
 
-## Performance Guidelines
+## Performance & Workflow
 
 - **Object Pooling:** Always use Phaser Groups for reusable sprites
 - **No Allocations:** Never create objects in `update()` loops
 - **Target:** 60 FPS desktop, 30+ FPS mobile, <100 active sprites
-
-## Development Workflow
-
-1. Start server: `npx serve .`
-2. Make changes to JS files
-3. Hard refresh browser (Cmd+Shift+R / Ctrl+F5)
-4. Check console for errors
-5. Play test affected features
-6. Verify no ghosting/artifacts
+- **Workflow:** Start server → Edit JS → Hard refresh → Test → Verify no artifacts
 
 ## Important Constraints
 
@@ -184,22 +192,6 @@ js/
 - **CDN Only:** Phaser via CDN, no npm packages
 - **ES Modules:** Must include `.js` extensions
 - **No External Assets:** All textures generated programmatically
-
-## Game Mechanics Reference
-
-**Biomes:**
-- Sky (0-1999): Blue background, white clouds
-- Stratosphere (2000-4999): Purple background, moving platforms
-- Space (5000+): Black + stars, meteors/satellites
-
-**Cloud Types:**
-- White: Normal platform
-- Grey: Disappears after bounce
-- Thunder: Instant death (red glow + lightning on meteors/satellites)
-
-**Pseudo-Infinite Scroll:**
-- Camera never moves up
-- When plane reaches midline going up: lock plane Y, scroll world down, increment score
 
 ---
 

@@ -41,8 +41,8 @@ export default class CloudManager {
         // Collectible spawn rates
         this.coinChance = 0.15;
         this.rocketChance = 0.03;
-        this.dragonBallChance = 0.10;
-        this.fateCardChance = 0.10;
+        this.dragonBallChance = 0.08;
+        this.fateCardChance = 0.05;
     }
 
     reset() {
