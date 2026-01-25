@@ -41,6 +41,7 @@ export default class CloudManager {
         // Collectible spawn rates
         this.coinChance = 0.15;
         this.rocketChance = 0.03;
+        this.dragonBallChance = 0.10;
     }
 
     reset() {
@@ -173,6 +174,12 @@ export default class CloudManager {
                 cloudX + this.cloudWidth / 2 - 10,
                 cloudY - 35,
                 CollectibleType.COIN
+            );
+        } else if (roll < this.rocketChance + this.coinChance + this.dragonBallChance) {
+            this.spawnCollectible(
+                cloudX + this.cloudWidth / 2 - 14,
+                cloudY - 35,
+                CollectibleType.DRAGON_BALL
             );
         }
     }

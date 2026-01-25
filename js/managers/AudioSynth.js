@@ -233,6 +233,47 @@ export default class AudioSynth {
     }
 
     /**
+     * Dragon Ball Collect - Mystical chime
+     */
+    playDragonBallCollect() {
+        if (!this.enabled) return;
+        this.resume();
+        
+        // Fast arpeggio
+        this.playTone(660, 0.1, 'sine', 0.2);
+        setTimeout(() => this.playTone(880, 0.1, 'sine', 0.2), 60);
+        setTimeout(() => this.playTone(1100, 0.15, 'sine', 0.2), 120);
+    }
+
+    /**
+     * Shield Activate - Power up sound
+     */
+    playShieldActivate() {
+        if (!this.enabled) return;
+        this.resume();
+        
+        // Rising power sound
+        this.playTone(300, 0.5, 'sine', 0.3, 800);
+        this.playTone(305, 0.5, 'triangle', 0.2, 805);
+    }
+
+    /**
+     * Shield Break/Revive - Shatter and bounce
+     */
+    playShieldBreak() {
+        if (!this.enabled) return;
+        this.resume();
+        
+        // Shatter (High pitch noise-like)
+        this.playTone(1200, 0.1, 'sawtooth', 0.3, 600);
+        
+        // Bounce sound (Heavy)
+        setTimeout(() => {
+            this.playTone(150, 0.3, 'square', 0.4, 60);
+        }, 50);
+    }
+
+    /**
      * Toggle sound on/off
      */
     toggle() {

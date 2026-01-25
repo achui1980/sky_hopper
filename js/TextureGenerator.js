@@ -335,6 +335,53 @@ function generateCollectibleTextures(scene) {
 
     graphics.generateTexture('coin', coinRadius * 2 + 2, coinRadius * 2 + 2);
     graphics.destroy();
+
+    // Dragon Ball
+    graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+    const dbRadius = 14;
+
+    // Orange Glass Body
+    graphics.fillStyle(0xffa502); // Orange
+    graphics.fillCircle(dbRadius, dbRadius, dbRadius);
+    
+    // Inner Glow
+    graphics.fillStyle(0xffb84d);
+    graphics.fillCircle(dbRadius, dbRadius, dbRadius * 0.8);
+
+    // Red Stars (Draw 3 stars for generic look)
+    graphics.fillStyle(0xe74c3c); // Red
+    drawStar(graphics, dbRadius, dbRadius * 0.7, 5, 3, 1.5); // Top
+    drawStar(graphics, dbRadius * 0.6, dbRadius * 1.2, 5, 3, 1.5); // Bottom Left
+    drawStar(graphics, dbRadius * 1.4, dbRadius * 1.2, 5, 3, 1.5); // Bottom Right
+    
+    // Shine/Reflection
+    graphics.fillStyle(0xffffff, 0.8);
+    graphics.fillEllipse(dbRadius * 0.6, dbRadius * 0.6, 6, 4, Math.PI / 4);
+
+    graphics.generateTexture('dragonball', dbRadius * 2, dbRadius * 2);
+    graphics.destroy();
+    
+    // Shield Aura
+    graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+    const shieldRadius = 40;
+    
+    // Cyan Aura Ring
+    graphics.lineStyle(4, 0x00d2d3, 0.8);
+    graphics.strokeCircle(shieldRadius, shieldRadius, shieldRadius - 2);
+    
+    // Inner Glow (Gradient simulated)
+    graphics.fillStyle(0x00d2d3, 0.2);
+    graphics.fillCircle(shieldRadius, shieldRadius, shieldRadius);
+    
+    // Rotating particles (static here, rotated in game)
+    graphics.fillStyle(0xffffff, 0.9);
+    graphics.fillCircle(shieldRadius, 5, 3);
+    graphics.fillCircle(shieldRadius, shieldRadius * 2 - 5, 3);
+    graphics.fillCircle(5, shieldRadius, 3);
+    graphics.fillCircle(shieldRadius * 2 - 5, shieldRadius, 3);
+
+    graphics.generateTexture('shield', shieldRadius * 2, shieldRadius * 2);
+    graphics.destroy();
 }
 
 /**

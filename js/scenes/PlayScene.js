@@ -37,6 +37,9 @@ export default class PlayScene extends Phaser.Scene {
         this.score = 0;
         this.maxHeight = 0;
         this.currentBiome = Biome.SKY;
+        this.dragonBallCount = 0;
+        this.hasShield = false;
+        this.shieldSprite = null;
         
         // Load high score
         this.highScore = parseInt(localStorage.getItem('sky_hopper_high_score') || '0');
@@ -49,6 +52,12 @@ export default class PlayScene extends Phaser.Scene {
         this.finalScoreElement = document.getElementById('final-score');
         this.startHighScoreElement = document.getElementById('start-high-score');
         this.gameOverHighScoreElement = document.getElementById('game-over-high-score');
+        this.dbSlots = document.querySelectorAll('.db-slot');
+        this.shieldIndicator = document.getElementById('shield-indicator');
+        
+        // Reset UI
+        this.updateDragonBallUI();
+        this.shieldIndicator.classList.add('hidden');
         
         // Update high score display
         this.updateHighScoreDisplay();
@@ -197,6 +206,14 @@ export default class PlayScene extends Phaser.Scene {
         this.score = 0;
         this.maxHeight = 0;
         this.currentBiome = Biome.SKY;
+        this.dragonBallCount = 0;
+        this.hasShield = false;
+        if (this.shieldSprite) {
+            this.shieldSprite.destroy();
+            this.shieldSprite = null;
+        }
+        this.updateDragonBallUI();
+        this.shieldIndicator.classList.add('hidden');
 
         // Hide UI screens
         this.startScreen.classList.add('hidden');
@@ -239,6 +256,12 @@ export default class PlayScene extends Phaser.Scene {
 
         // Update plane
         this.plane.update(input, delta);
+        
+        // Update shield sprite
+        if (this.hasShield && this.shieldSprite) {
+            this.shieldSprite.setPosition(this.plane.x, this.plane.y);
+            this.shieldSprite.rotation += 0.05;
+        }
 
         // Camera scroll logic (pseudo-infinite scroll)
         const middleY = this.gameHeight / 2;
@@ -344,11 +367,89 @@ export default class PlayScene extends Phaser.Scene {
             this.scoreElement.textContent = this.score;
             // Play coin collect sound
             this.audio.playCoin();
+        } else if (collectible.type === 'dragonball') {
+            this.collectDragonBall();
         }
         collectible.collect();
     }
+    
+    collectDragonBall() {
+        if (this.dragonBallCount < 7) {
+            this.dragonBallCount++;
+            this.updateDragonBallUI();
+            
+            // Play sound
+            if (this.audio.playDragonBallCollect) {
+                this.audio.playDragonBallCollect();
+            } else {
+                this.audio.playCoin(); // Fallback
+            }
+            
+            if (this.dragonBallCount >= 7) {
+                this.activateShield();
+            }
+        }
+    }
+    
+    updateDragonBallUI() {
+        this.dbSlots.forEach((slot, index) => {
+            if (index < this.dragonBallCount) {
+                slot.classList.add('active');
+            } else {
+                slot.classList.remove('active');
+            }
+        });
+    }
+    
+    activateShield() {
+        this.hasShield = true;
+        this.dragonBallCount = 0;
+        this.updateDragonBallUI();
+        
+        // Show indicator
+        this.shieldIndicator.classList.remove('hidden');
+        
+        // Create shield sprite
+        this.shieldSprite = this.add.sprite(this.plane.x, this.plane.y, 'shield');
+        this.shieldSprite.setDepth(10); // Above plane
+        this.shieldSprite.setAlpha(0.8);
+        
+        // Play sound
+        if (this.audio.playShieldActivate) {
+            this.audio.playShieldActivate();
+        }
+        
+        // Effect
+        this.cameras.main.flash(500, 0, 210, 211); // Cyan flash
+    }
+    
+    useShield() {
+        this.hasShield = false;
+        this.shieldIndicator.classList.add('hidden');
+        
+        if (this.shieldSprite) {
+            this.shieldSprite.destroy();
+            this.shieldSprite = null;
+        }
+        
+        // Super bounce
+        this.plane.body.setVelocityY(-800); // Strong bounce
+        this.cameras.main.shake(300, 0.02);
+        this.cameras.main.flash(300, 0, 210, 211);
+        
+        // Sound
+        if (this.audio.playShieldBreak) {
+            this.audio.playShieldBreak();
+        }
+    }
 
     gameOver() {
+        // Check for shield
+        if (this.hasShield) {
+            this.useShield();
+            return;
+        }
+
         this.gameState = GameState.GAME_OVER;
         
         // Check and update high score
