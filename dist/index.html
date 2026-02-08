@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Starbound Aviator</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-layer">
+            <div id="score">0</div>
+            <div id="dragon-balls-container">
+                <div class="db-slot"></div>
+                <div class="db-slot"></div>
+                <div class="db-slot"></div>
+                <div class="db-slot"></div>
+                <div class="db-slot"></div>
+                <div class="db-slot"></div>
+                <div class="db-slot"></div>
+            </div>
+            <div id="shield-indicator" class="hidden">SHIELD ACTIVE</div>
+            
+            <div id="fate-status-container" class="hidden">
+            </div>
+
+            <div id="start-screen">
+                <h1>Starbound Aviator</h1>
+                <p>Use ARROW KEYS or A/D to move</p>
+                <p>Hold SPACE/UP or Touch Both Sides to GLIDE</p>
+                <p>Press P to Pause</p>
+                <p>Touch LEFT/RIGHT on mobile</p>
+                <p>Bounce on clouds to reach the stars!</p>
+                <p class="hint">Collect rockets for a boost!</p>
+                <p id="start-high-score" class="high-score">High Score: 0</p>
+                <button id="start-btn">Start Game</button>
+            </div>
+            <div id="game-over-screen" class="hidden">
+                <h1>Game Over</h1>
+                <p id="final-score">Score: 0</p>
+                <p id="game-over-high-score" class="high-score">High Score: 0</p>
+                <button id="restart-btn">Try Again</button>
+            </div>
+            <div id="pause-screen" class="hidden">
+                <h1>PAUSED</h1>
+                <p>Press P to continue</p>
+            </div>
+            
+            <div id="fate-screen" class="hidden">
+                <h1>Wheel of Fate</h1>
+                <div class="fate-card-container">
+                    <div id="fate-card" class="card">
+                        <div class="card-face card-back">?</div>
+                        <div class="card-face card-front">
+                            <div id="fate-icon"></div>
+                            <div id="fate-title"></div>
+                            <div id="fate-desc"></div>
+                        </div>
+                    </div>
+                </div>
+                <p id="fate-instruction">Click the card to reveal your destiny!</p>
+                <button id="fate-continue-btn" class="hidden">Accept Fate</button>
+            </div>
+            
+            <div id="mobile-controls">
+                <button id="btn-left" class="control-btn">←</button>
+                <button id="btn-right" class="control-btn">→</button>
+            </div>
+        </div>
+    </div>
+    <script src="assets/game.js"></script>
+</body>
+</html>

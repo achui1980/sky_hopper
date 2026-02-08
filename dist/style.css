@@ -1,0 +1,410 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh; /* Mobile viewport fix */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#game-container {
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#score {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+}
+
+#dragon-balls-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 5px;
+}
+
+.db-slot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.db-slot.active {
+    background-color: #ffa502;
+    border-color: #ffeaa7;
+    box-shadow: 0 0 10px #ff9f43;
+    transform: scale(1.2);
+}
+
+#shield-indicator {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    color: #00d2d3;
+    font-weight: bold;
+    font-size: 16px;
+    text-shadow: 0 0 5px #00d2d3;
+    animation: pulse 1s infinite;
+}
+
+#fate-status-container {
+    position: absolute;
+    top: 60px; /* Below Dragon Balls */
+    right: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mini-card {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 3px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    min-width: 120px;
+    animation: slideIn 0.5s ease-out;
+}
+
+.mini-card.curse { border-color: #e74c3c; background: #fadbd8; }
+.mini-card.common { border-color: #bdc3c7; } /* White/Grey */
+.mini-card.rare { border-color: #3498db; background: #d6eaf8; }
+.mini-card.epic { border-color: #9b59b6; background: #ebdef0; }
+.mini-card.legendary { border-color: #f1c40f; background: #fcf3cf; box-shadow: 0 0 15px #f39c12; }
+
+#fate-status-icon, .fate-status-icon {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+#fate-status-text, .fate-status-text {
+    display: flex;
+    flex-direction: column;
+}
+
+#fate-status-title, .fate-status-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+#fate-status-desc, .fate-status-desc {
+    font-size: 12px;
+    color: #666;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; text-shadow: 0 0 10px #00d2d3; }
+    100% { opacity: 0.7; }
+}
+
+/* Fate Screen */
+#fate-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    pointer-events: auto; /* Enable interaction */
+}
+
+#fate-screen h1 {
+    color: #f1c40f;
+    font-size: 36px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #f39c12;
+}
+
+.fate-card-container {
+    perspective: 1000px;
+    margin-bottom: 30px;
+}
+
+.card {
+    width: 160px;
+    height: 240px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 4px solid #f1c40f;
+}
+
+.card-back {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: #f1c40f;
+    font-size: 80px;
+    font-weight: bold;
+}
+
+.card-front {
+    background: white;
+    transform: rotateY(180deg);
+    padding: 15px;
+    text-align: center;
+}
+
+/* Rarity Borders */
+.card-front.curse { border-color: #e74c3c; box-shadow: 0 0 20px #c0392b; animation: shake 0.5s; }
+.card-front.common { border-color: #bdc3c7; }
+.card-front.rare { border-color: #3498db; box-shadow: 0 0 15px #2980b9; }
+.card-front.epic { border-color: #9b59b6; box-shadow: 0 0 15px #8e44ad; }
+.card-front.legendary { border-color: #f1c40f; box-shadow: 0 0 25px #f39c12; }
+
+#fate-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+#fate-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#fate-desc {
+    font-size: 14px;
+    color: #666;
+}
+
+@keyframes shake {
+    0%, 100% { transform: rotateY(180deg) translateX(0); }
+    25% { transform: rotateY(180deg) translateX(-5px); }
+    75% { transform: rotateY(180deg) translateX(5px); }
+}
+
+#start-screen,
+#game-over-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px 40px;
+    border-radius: 15px;
+    text-align: center;
+    pointer-events: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+#start-screen h1,
+#game-over-screen h1 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 32px;
+}
+
+#start-screen p {
+    color: #555;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+#start-screen p.hint {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#game-over-screen #final-score {
+    font-size: 24px;
+    color: #e74c3c;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Pause Screen */
+#pause-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#pause-screen.hidden {
+    display: none;
+}
+
+#pause-screen h1 {
+    color: white;
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-shadow: 4px 4px 0 #000;
+    letter-spacing: 8px;
+}
+
+#pause-screen p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 18px;
+}
+
+.high-score {
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+#start-screen .high-score {
+    color: #f39c12;
+    font-size: 18px;
+    margin-top: 5px;
+}
+
+#game-over-screen .high-score {
+    color: #f39c12;
+    font-size: 20px;
+}
+
+/* Mobile Controls */
+#mobile-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    pointer-events: none; /* Let clicks pass through container */
+    z-index: 50;
+    display: none; /* Hidden by default on desktop */
+}
+
+.control-btn {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    font-size: 36px;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto; /* Enable clicks on buttons */
+    touch-action: none; /* Prevent browser zooming/scrolling */
+    margin: 0;
+    padding: 0;
+    backdrop-filter: blur(2px);
+    transition: transform 0.1s, background 0.1s;
+}
+
+.control-btn:active, .control-btn.active {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+    #mobile-controls {
+        display: flex;
+    }
+    
+    #game-container {
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
