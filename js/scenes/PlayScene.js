@@ -715,6 +715,11 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     activateShield() {
+        // Fix: Destroy existing shield sprite if it exists to prevent ghosting
+        if (this.shieldSprite) {
+            this.shieldSprite.destroy();
+        }
+
         this.hasShield = true;
         this.dragonBallCount = 0;
         this.updateDragonBallUI();
@@ -745,6 +750,11 @@ export default class PlayScene extends Phaser.Scene {
             this.shieldSprite = null;
         }
         
+        // Fix: If below screen, rescue to bottom
+        if (this.plane.y > this.gameHeight) {
+            this.plane.setY(this.gameHeight - 50);
+        }
+
         // Super bounce
         this.plane.body.setVelocityY(-800); // Strong bounce
         this.cameras.main.shake(300, 0.02);
