@@ -34,6 +34,23 @@
             border-radius: 10px;
             text-align: center;
         }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+        .controls label {
+            font-weight: bold;
+        }
+        .controls input {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 60px;
+            text-align: center;
+        }
         #phaser-canvas {
             display: none; /* Hide the actual canvas */
         }
@@ -50,9 +67,14 @@
             font-size: 18px;
             border-radius: 25px;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
             font-weight: bold;
             transition: transform 0.2s;
+        }
+        button.secondary {
+            background: #444;
+            font-size: 16px;
+            padding: 10px 20px;
         }
         button:hover {
             transform: scale(1.05);
@@ -69,7 +91,17 @@
     
     <div class="container">
         <div class="preview-box">
-            <h3>Generated Icon (512x512)</h3>
+            <h3>Generated Icon</h3>
+            
+            <div class="controls">
+                <label for="icon-width">Width:</label>
+                <input type="number" id="icon-width" value="512" min="64" max="1024">
+                <label for="icon-height">Height:</label>
+                <input type="number" id="icon-height" value="512" min="64" max="1024">
+            </div>
+            <button id="regenerate-btn" class="secondary">Regenerate</button>
+            <br><br>
+
             <img id="generated-icon" alt="Generating..." width="256" height="256">
             <br>
             <button id="download-btn">Download icon.png</button>
@@ -78,6 +110,8 @@
         <div class="preview-box" style="text-align: left;">
             <h3>Instructions</h3>
             <ol>
+                <li>Enter desired Width and Height.</li>
+                <li>Click <strong>Regenerate</strong> to resize.</li>
                 <li>Click the <strong>Download</strong> button.</li>
                 <li>Save the file as <strong>icon.png</strong> in your project root folder.</li>
                 <li>Refresh the game page to see the new favicon!</li>
@@ -90,6 +124,8 @@
     <script type="module">
         import { generateTextures } from './js/TextureGenerator.js';
 
+        let game; // Store game instance
+
         class IconScene extends Phaser.Scene {
             constructor() {
                 super({ key: 'IconScene' });
@@ -100,8 +136,8 @@
                 generateTextures(this);
 
                 // 2. Compose the Icon
-                const width = 512;
-                const height = 512;
+                const width = this.sys.game.config.width;
+                const height = this.sys.game.config.height;
 
                 // Background Gradient (Sky to Stratosphere)
                 const graphics = this.add.graphics();
@@ -109,32 +145,32 @@
                 graphics.fillRect(0, 0, width, height);
 
                 // Add some subtle clouds in background
-                const cloud1 = this.add.image(100, 100, 'cloud-white');
-                cloud1.setScale(1.5).setAlpha(0.6);
+                const cloud1 = this.add.image(width * 0.2, height * 0.2, 'cloud-white');
+                cloud1.setScale(width / 340).setAlpha(0.6);
                 
-                const cloud2 = this.add.image(400, 350, 'cloud-white');
-                cloud2.setScale(2.0).setAlpha(0.7);
+                const cloud2 = this.add.image(width * 0.8, height * 0.7, 'cloud-white');
+                cloud2.setScale(width / 250).setAlpha(0.7);
                 
-                const cloud3 = this.add.image(150, 400, 'cloud-white');
-                cloud3.setScale(1.2).setAlpha(0.5);
+                const cloud3 = this.add.image(width * 0.3, height * 0.8, 'cloud-white');
+                cloud3.setScale(width / 420).setAlpha(0.5);
 
                 // Add a star
-                const star = this.add.image(420, 100, 'coin'); // Reuse coin star style or just draw one
-                star.setScale(2).setAlpha(0.8);
+                const star = this.add.image(width * 0.8, height * 0.2, 'coin'); // Reuse coin star style or just draw one
+                star.setScale(width / 256).setAlpha(0.8);
 
                 // Main Subject: The Plane
                 // Draw a circle background for the plane to pop
                 graphics.fillStyle(0xffffff, 0.2);
-                graphics.fillCircle(width/2, height/2, 180);
+                graphics.fillCircle(width/2, height/2, width * 0.35);
                 
                 const plane = this.add.image(width/2, height/2, 'plane-boost');
-                plane.setScale(4); // Big plane
+                plane.setScale(width / 128); // Dynamic scale
                 plane.setAngle(-15); // Dynamic angle
 
                 // Add "Speed lines"
-                graphics.lineStyle(4, 0xffffff, 0.5);
-                graphics.lineBetween(width/2 - 150, height/2 + 80, width/2 - 220, height/2 + 100);
-                graphics.lineBetween(width/2 - 120, height/2 + 100, width/2 - 180, height/2 + 120);
+                graphics.lineStyle(width * 0.008, 0xffffff, 0.5);
+                graphics.lineBetween(width/2 - width*0.3, height/2 + height*0.15, width/2 - width*0.42, height/2 + height*0.19);
+                graphics.lineBetween(width/2 - width*0.24, height/2 + height*0.19, width/2 - width*0.35, height/2 + height*0.23);
 
                 // 3. Export to Image
                 // Wait for one render frame
@@ -143,10 +179,16 @@
                         const iconImg = document.getElementById('generated-icon');
                         iconImg.src = image.src;
                         
+                        // Update preview display size (keep aspect ratio but limit max size)
+                        iconImg.style.maxWidth = '256px';
+                        iconImg.style.maxHeight = '256px';
+                        iconImg.width = 256;
+                        iconImg.height = 256;
+                        
                         const downloadBtn = document.getElementById('download-btn');
                         downloadBtn.onclick = () => {
                             const link = document.createElement('a');
-                            link.download = 'icon.png';
+                            link.download = `icon-${width}x${height}.png`;
                             link.href = image.src;
                             document.body.appendChild(link);
                             link.click();
@@ -157,20 +199,36 @@
             }
         }
 
-        const config = {
-            type: Phaser.AUTO,
-            width: 512,
-            height: 512,
-            parent: 'phaser-canvas',
-            backgroundColor: '#000000',
-            scene: [IconScene],
-            scale: {
-                mode: Phaser.Scale.NONE
-            },
-            preserveDrawingBuffer: true // Important for snapshot
-        };
+        function createGame(width, height) {
+            if (game) {
+                game.destroy(true);
+            }
 
-        new Phaser.Game(config);
+            const config = {
+                type: Phaser.AUTO,
+                width: width,
+                height: height,
+                parent: 'phaser-canvas',
+                backgroundColor: '#000000',
+                scene: [IconScene],
+                scale: {
+                    mode: Phaser.Scale.NONE
+                },
+                preserveDrawingBuffer: true // Important for snapshot
+            };
+
+            game = new Phaser.Game(config);
+        }
+
+        // Initial creation
+        createGame(512, 512);
+
+        // Event Listeners
+        document.getElementById('regenerate-btn').addEventListener('click', () => {
+            const w = parseInt(document.getElementById('icon-width').value) || 512;
+            const h = parseInt(document.getElementById('icon-height').value) || 512;
+            createGame(w, h);
+        });
     </script>
 </body>
 </html>
