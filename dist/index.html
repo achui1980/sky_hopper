@@ -11,6 +11,7 @@
 <body>
     <div id="game-container">
         <div id="ui-layer">
+            <button id="lang-btn" class="lang-toggle">EN</button>
             <div id="score">0</div>
             <div id="dragon-balls-container">
                 <div class="db-slot"></div>
@@ -21,35 +22,35 @@
                 <div class="db-slot"></div>
                 <div class="db-slot"></div>
             </div>
-            <div id="shield-indicator" class="hidden">SHIELD ACTIVE</div>
+            <div id="shield-indicator" class="hidden" data-i18n="shield_active">SHIELD ACTIVE</div>
             
             <div id="fate-status-container" class="hidden">
             </div>
 
             <div id="start-screen">
-                <h1>Starbound Aviator</h1>
-                <p>Use ARROW KEYS or A/D to move</p>
-                <p>Hold SPACE/UP or Touch Both Sides to GLIDE</p>
-                <p>Press P to Pause</p>
-                <p>Touch LEFT/RIGHT on mobile</p>
-                <p>Bounce on clouds to reach the stars!</p>
-                <p class="hint">Collect rockets for a boost!</p>
+                <h1 data-i18n="title">Starbound Aviator</h1>
+                <p data-i18n="move_keys">Use ARROW KEYS or A/D to move</p>
+                <p data-i18n="glide_keys">Hold SPACE/UP or Touch Both Sides to GLIDE</p>
+                <p data-i18n="pause_hint">Press P to Pause</p>
+                <p data-i18n="mobile_move">Touch LEFT/RIGHT on mobile</p>
+                <p data-i18n="bounce_hint">Bounce on clouds to reach the stars!</p>
+                <p class="hint" data-i18n="rocket_hint">Collect rockets for a boost!</p>
                 <p id="start-high-score" class="high-score">High Score: 0</p>
-                <button id="start-btn">Start Game</button>
+                <button id="start-btn" data-i18n="start_game">Start Game</button>
             </div>
             <div id="game-over-screen" class="hidden">
-                <h1>Game Over</h1>
+                <h1 data-i18n="game_over">Game Over</h1>
                 <p id="final-score">Score: 0</p>
                 <p id="game-over-high-score" class="high-score">High Score: 0</p>
-                <button id="restart-btn">Try Again</button>
+                <button id="restart-btn" data-i18n="try_again">Try Again</button>
             </div>
             <div id="pause-screen" class="hidden">
-                <h1>PAUSED</h1>
-                <p>Press P to continue</p>
+                <h1 data-i18n="paused">PAUSED</h1>
+                <p data-i18n="continue">Press P to continue</p>
             </div>
             
             <div id="fate-screen" class="hidden">
-                <h1>Wheel of Fate</h1>
+                <h1 data-i18n="wheel_of_fate">Wheel of Fate</h1>
                 <div class="fate-card-container">
                     <div id="fate-card" class="card">
                         <div class="card-face card-back">?</div>
@@ -60,8 +61,8 @@
                         </div>
                     </div>
                 </div>
-                <p id="fate-instruction">Click the card to reveal your destiny!</p>
-                <button id="fate-continue-btn" class="hidden">Accept Fate</button>
+                <p id="fate-instruction" data-i18n="click_to_reveal">Click the card to reveal your destiny!</p>
+                <button id="fate-continue-btn" class="hidden" data-i18n="accept_fate">Accept Fate</button>
             </div>
             
             <div id="mobile-controls">

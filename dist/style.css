@@ -57,6 +57,34 @@ canvas {
     gap: 5px;
 }
 
+.lang-toggle {
+    position: absolute;
+    top: 20px;
+    right: 200px; /* Increased distance from dragon balls (which are at right: 20px) */
+    z-index: 200; /* Higher z-index to ensure clickability */
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    pointer-events: auto; /* Ensure it captures pointer events */
+}
+
+.lang-toggle:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
 .db-slot {
     width: 20px;
     height: 20px;
