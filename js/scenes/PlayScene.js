@@ -2,6 +2,7 @@
  * PlayScene.js - Main game scene
  */
 
+import Phaser from 'phaser';
 import Plane from '../sprites/Plane.js';
 import CloudManager from '../managers/CloudManager.js';
 import AudioSynth from '../managers/AudioSynth.js';

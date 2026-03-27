@@ -2,6 +2,7 @@
  * main.js - Entry point for Sky Hopper (Phaser 3 Version)
  */
 
+import Phaser from 'phaser';
 import BootScene from './scenes/BootScene.js';
 import PlayScene from './scenes/PlayScene.js';
 import LanguageManager from './managers/LanguageManager.js';

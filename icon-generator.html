@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sky Hopper Icon Generator</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -122,6 +121,7 @@
     <div id="phaser-canvas"></div>
 
     <script type="module">
+        import Phaser from 'phaser';
         import { generateTextures } from './js/TextureGenerator.js';
 
         let game; // Store game instance

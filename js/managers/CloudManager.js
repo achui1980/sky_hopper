@@ -2,6 +2,7 @@
  * CloudManager.js - Manages cloud spawning and recycling (Phaser version)
  */
 
+import Phaser from 'phaser';
 import Cloud, { CloudType, CloudVisual } from '../sprites/Cloud.js';
 import Collectible, { CollectibleType } from '../sprites/Collectible.js';
 import { Biome, BIOME_THRESHOLDS } from '../scenes/PlayScene.js';

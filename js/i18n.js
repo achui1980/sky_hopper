@@ -37,7 +37,7 @@ export const translations = {
     },
     zh: {
         // UI
-        title: '星际飞行家',
+        title: '星际跃空者',
         move_keys: '使用 方向键 或 A/D 移动',
         glide_keys: '按住 空格/上键 或 双指触摸以滑翔',
         pause_hint: '按 P 暂停',
