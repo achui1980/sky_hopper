@@ -2,6 +2,7 @@
  * PlayScene.js - Main game scene
  */
 
+import Phaser from 'phaser';
 import Plane from '../sprites/Plane.js';
 import CloudManager from '../managers/CloudManager.js';
 import AudioSynth from '../managers/AudioSynth.js';
@@ -34,6 +35,11 @@ export default class PlayScene extends Phaser.Scene {
         this.width = this.game.config.width;
         this.height = this.game.config.height;
         this.gameState = GameState.WAITING_TO_START; // Fix: Initialize game state
+        
+        // Listen for language changes
+        window.addEventListener('languageChanged', () => {
+            this.updateTexts();
+        });
 
         // Background
         this.bg = this.add.tileSprite(0, 0, this.width, this.height, 'bg-sky');
@@ -609,14 +615,19 @@ export default class PlayScene extends Phaser.Scene {
     }
     
     applyCurse() {
+        const lang = window.languageManager;
+        
         this.fateCardFront.classList.add('curse');
         this.fateIcon.textContent = '💀';
-        this.fateTitle.textContent = 'CURSE';
+        this.fateTitle.textContent = lang ? lang.getText('curse') : 'CURSE';
         
         // Gravity increase: 10% - 30%
         const severity = 0.1 + Math.random() * 0.2;
         
-        const desc = `Gravity +${Math.round(severity * 100)}%`;
+        const desc = lang ? 
+            lang.getText('gravity_plus', Math.round(severity * 100)) :
+            `Gravity +${Math.round(severity * 100)}%`;
+            
         this.fateDesc.textContent = desc;
         
         // Shake effect
@@ -638,6 +649,7 @@ export default class PlayScene extends Phaser.Scene {
     }
     
     applyBlessing() {
+        const lang = window.languageManager;
         // Roll for Rarity: Common (0-50), Rare (51-80), Epic (81-95), Legendary (96-100)
         const roll = Math.random() * 100;
         let rarity = 'common';
@@ -669,22 +681,28 @@ export default class PlayScene extends Phaser.Scene {
         if (typeRoll < 0.33) {
             // Gravity Down (Lightness)
             icon = '🪶';
-            title = 'LIGHTNESS';
-            desc = `Gravity -${Math.round(value * 100)}%`;
+            title = lang ? lang.getText('lightness') : 'LIGHTNESS';
+            desc = lang ? 
+                lang.getText('gravity_minus', Math.round(value * 100)) :
+                `Gravity -${Math.round(value * 100)}%`;
             type = 'gravity';
             modValue = 1 - value;
         } else if (typeRoll < 0.66) {
             // Speed Up (Turbo)
             icon = '⚡';
-            title = 'TURBO';
-            desc = `Speed +${Math.round(value * 100)}%`;
+            title = lang ? lang.getText('turbo') : 'TURBO';
+            desc = lang ? 
+                lang.getText('speed_plus', Math.round(value * 100)) :
+                `Speed +${Math.round(value * 100)}%`;
             type = 'speed';
             modValue = 1 + value;
         } else {
             // Score Multiplier (Greed)
             icon = '💰';
-            title = 'GREED';
-            desc = `Score x${(1 + value).toFixed(1)}`;
+            title = lang ? lang.getText('greed') : 'GREED';
+            desc = lang ? 
+                lang.getText('score_multi', (1 + value).toFixed(1)) :
+                `Score x${(1 + value).toFixed(1)}`;
             type = 'score';
             modValue = 1 + value;
         }
@@ -715,6 +733,11 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     activateShield() {
+        // Fix: Destroy existing shield sprite if it exists to prevent ghosting
+        if (this.shieldSprite) {
+            this.shieldSprite.destroy();
+        }
+
         this.hasShield = true;
         this.dragonBallCount = 0;
         this.updateDragonBallUI();
@@ -745,6 +768,11 @@ export default class PlayScene extends Phaser.Scene {
             this.shieldSprite = null;
         }
         
+        // Fix: If below screen, rescue to bottom
+        if (this.plane.y > this.gameHeight) {
+            this.plane.setY(this.gameHeight - 50);
+        }
+
         // Super bounce
         this.plane.body.setVelocityY(-800); // Strong bounce
         this.cameras.main.shake(300, 0.02);
@@ -777,17 +805,32 @@ export default class PlayScene extends Phaser.Scene {
         
         // Show game over screen
         this.gameOverScreen.classList.remove('hidden');
-        this.finalScoreElement.textContent = `Score: ${this.score}`;
+        this.finalScoreElement.textContent = window.languageManager ? window.languageManager.getText('score', this.score) : `Score: ${this.score}`;
 
         console.log('Game over - Score:', this.score);
     }
 
     updateHighScoreDisplay() {
+        const lang = window.languageManager;
+        const text = lang ? lang.getText('high_score', this.highScore) : `High Score: ${this.highScore}`;
+        
         if (this.startHighScoreElement) {
-            this.startHighScoreElement.textContent = `High Score: ${this.highScore}`;
+            this.startHighScoreElement.textContent = text;
         }
         if (this.gameOverHighScoreElement) {
-            this.gameOverHighScoreElement.textContent = `High Score: ${this.highScore}`;
+            this.gameOverHighScoreElement.textContent = text;
+        }
+    }
+    
+    updateTexts() {
+        // Update any dynamic texts that aren't covered by updateDOM
+        this.updateHighScoreDisplay();
+        this.scoreElement.textContent = this.score; // Score is just a number
+        
+        // Update shield indicator if active
+        if (this.hasShield) {
+            const lang = window.languageManager;
+            this.shieldIndicator.textContent = lang ? lang.getText('shield_active') : 'SHIELD ACTIVE';
         }
     }
 

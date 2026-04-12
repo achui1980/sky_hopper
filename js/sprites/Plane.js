@@ -2,6 +2,8 @@
  * Plane.js - Player-controlled plane (Phaser Sprite version)
  */
 
+import Phaser from 'phaser';
+
 export default class Plane extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
         super(scene, x, y, 'plane');

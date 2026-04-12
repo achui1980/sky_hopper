@@ -2,6 +2,7 @@
  * BootScene.js - Preload scene for generating textures
  */
 
+import Phaser from 'phaser';
 import { generateTextures } from '../TextureGenerator.js';
 
 export default class BootScene extends Phaser.Scene {

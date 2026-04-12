@@ -2,6 +2,8 @@
  * Collectible.js - Collectible items (Rocket, Coin)
  */
 
+import Phaser from 'phaser';
+
 export const CollectibleType = {
     ROCKET: 'rocket',
     COIN: 'coin',

@@ -2,6 +2,8 @@
  * Cloud.js - Cloud platform sprite
  */
 
+import Phaser from 'phaser';
+
 export const CloudType = {
     WHITE: 'white',
     GREY: 'grey',
